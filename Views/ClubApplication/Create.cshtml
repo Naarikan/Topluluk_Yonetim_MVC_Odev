@@ -1,0 +1,105 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.ClubApplicationViewModel
+@{
+    ViewData["Title"] = "Topluluk Başvurusu";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary mb-2">Yeni Topluluk Başvurusu</h1>
+            <p class="text-gray-600">Topluluk kurmak için aşağıdaki formu doldurunuz.</p>
+        </div>
+
+        <form asp-action="Create" method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4"></div>
+
+            <!-- Club Name -->
+            <div>
+                <label asp-for="ClubName" class="block text-sm font-semibold text-primary mb-2">
+                    <span class="text-secondary">*</span> @Html.DisplayNameFor(m => m.ClubName)
+                </label>
+                <input asp-for="ClubName" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Topluluk adını giriniz" />
+                <span asp-validation-for="ClubName" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Mission -->
+            <div>
+                <label asp-for="Mission" class="block text-sm font-semibold text-primary mb-2">
+                    <span class="text-secondary">*</span> @Html.DisplayNameFor(m => m.Mission)
+                </label>
+                <textarea asp-for="Mission" rows="4" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Topluluğunuzun misyonunu açıklayınız"></textarea>
+                <span asp-validation-for="Mission" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Vision -->
+            <div>
+                <label asp-for="Vision" class="block text-sm font-semibold text-primary mb-2">
+                    @Html.DisplayNameFor(m => m.Vision)
+                </label>
+                <textarea asp-for="Vision" rows="4" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Topluluğunuzun vizyonunu açıklayınız"></textarea>
+                <span asp-validation-for="Vision" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Planned Activities -->
+            <div>
+                <label asp-for="PlannedActivities" class="block text-sm font-semibold text-primary mb-2">
+                    @Html.DisplayNameFor(m => m.PlannedActivities)
+                </label>
+                <textarea asp-for="PlannedActivities" rows="4" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Planladığınız aktiviteleri açıklayınız"></textarea>
+                <span asp-validation-for="PlannedActivities" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Estimated Member Count -->
+            <div>
+                <label asp-for="EstimatedMemberCount" class="block text-sm font-semibold text-primary mb-2">
+                    <span class="text-secondary">*</span> @Html.DisplayNameFor(m => m.EstimatedMemberCount)
+                </label>
+                <input asp-for="EstimatedMemberCount" type="number" min="5" max="500" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Tahmini üye sayısı" />
+                <span asp-validation-for="EstimatedMemberCount" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Advisor Name -->
+            <div>
+                <label asp-for="AdvisorName" class="block text-sm font-semibold text-primary mb-2">
+                    @Html.DisplayNameFor(m => m.AdvisorName)
+                </label>
+                <input asp-for="AdvisorName" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="Danışman adı soyadı" />
+                <span asp-validation-for="AdvisorName" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Advisor Email -->
+            <div>
+                <label asp-for="AdvisorEmail" class="block text-sm font-semibold text-primary mb-2">
+                    @Html.DisplayNameFor(m => m.AdvisorEmail)
+                </label>
+                <input asp-for="AdvisorEmail" type="email" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="danisman@example.com" />
+                <span asp-validation-for="AdvisorEmail" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Resource Needs -->
+            <div>
+                <label asp-for="ResourceNeeds" class="block text-sm font-semibold text-primary mb-2">
+                    @Html.DisplayNameFor(m => m.ResourceNeeds)
+                </label>
+                <textarea asp-for="ResourceNeeds" rows="4" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" placeholder="İhtiyaç duyduğunuz kaynakları açıklayınız"></textarea>
+                <span asp-validation-for="ResourceNeeds" class="text-red-600 text-sm mt-1 block"></span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                    Başvuruyu Gönder
+                </button>
+                <a asp-action="Index" class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                    İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

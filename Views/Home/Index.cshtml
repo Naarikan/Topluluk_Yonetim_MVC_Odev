@@ -1,0 +1,82 @@
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var isAuthenticated = User?.Identity?.IsAuthenticated == true;
+    if (!isAuthenticated)
+    {
+        ViewData["FullWidth"] = true;
+    }
+}
+
+@if (!isAuthenticated)
+{
+    <!-- Not authenticated - show welcome page with login/register -->
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-secondary relative overflow-hidden">
+        <!-- Animated background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-secondary animate-gradient bg-[length:400%_400%]"></div>
+        
+        <!-- Floating circles -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+            <div class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-radial-gradient from-secondary/10 to-transparent animate-float"></div>
+        </div>
+        
+        <!-- Welcome Card -->
+        <div class="relative z-10 w-full max-w-2xl mx-4">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
+                <div class="px-10 py-12 text-center">
+                    <h1 class="text-4xl font-bold text-primary mb-4">
+                        <span class="text-secondary">•</span>
+                        Topluluk Yönetim Sistemi
+                        <span class="text-secondary">•</span>
+                    </h1>
+                    <p class="text-gray-600 text-lg mb-8">
+                        Öðrenci topluluklarýný yönetmek ve etkinliklerinizi organize etmek için sisteme giriþ yapýn.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a asp-controller="Account" asp-action="Login" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                            Giriþ Yap
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="border-2 border-primary text-primary px-8 py-4 rounded-lg font-semibold hover:bg-primary hover:text-white transition-all duration-300">
+                            Kayýt Ol
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Authenticated - show dashboard -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-3xl font-bold text-primary mb-4">Hoþ Geldiniz</h1>
+            <p class="text-gray-600">Topluluk yönetim sistemine hoþ geldiniz. Sol menüden istediðiniz bölüme eriþebilirsiniz.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-xl font-semibold text-primary mb-2">Duyurular</h2>
+                <p class="text-gray-600 mb-4">Son duyurularý görüntüleyin</p>
+                <a asp-controller="Announcement" asp-action="Index" class="text-secondary hover:underline font-semibold">
+                    Duyurulara Git ›
+                </a>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-xl font-semibold text-primary mb-2">Etkinlikler</h2>
+                <p class="text-gray-600 mb-4">Etkinlikleri görüntüleyin ve baþvuru yapýn</p>
+                <a asp-controller="Event" asp-action="Index" class="text-secondary hover:underline font-semibold">
+                    Etkinliklere Git ›
+                </a>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h2 class="text-xl font-semibold text-primary mb-2">Topluluklar</h2>
+                <p class="text-gray-600 mb-4">Topluluk baþvurusu yapýn</p>
+                <a asp-controller="ClubApplication" asp-action="Index" class="text-secondary hover:underline font-semibold">
+                    Topluluklara Git ›
+                </a>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,111 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Hesabım";
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-primary">Hesabım</h1>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-50 border-2 border-green-300 text-green-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Başarılı!</p>
+                <p class="text-sm">@TempData["SuccessMessage"]</p>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Hata!</p>
+                <p class="text-sm">@TempData["ErrorMessage"]</p>
+            </div>
+        </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Profile Form -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-primary mb-6">Profil Bilgileri</h2>
+            
+            <form asp-action="Profile" method="post" class="space-y-6">
+                <div asp-validation-summary="ModelOnly" class="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Full Name -->
+                <div>
+                    <label asp-for="FullName" class="block text-sm font-semibold text-primary mb-2">
+                        <span class="text-secondary">*</span> @Html.DisplayNameFor(m => m.FullName)
+                    </label>
+                    <input asp-for="FullName" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" />
+                    <span asp-validation-for="FullName" class="text-red-600 text-sm mt-1 block"></span>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <div>
+                    <label asp-for="Email" class="block text-sm font-semibold text-primary mb-2">
+                        @Html.DisplayNameFor(m => m.Email)
+                    </label>
+                    <input asp-for="Email" disabled class="w-full border-2 border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-600" />
+                    <p class="text-sm text-gray-500 mt-1">E-posta adresi değiştirilemez.</p>
+                </div>
+
+                <!-- Student Number -->
+                <div>
+                    <label asp-for="StudentNumber" class="block text-sm font-semibold text-primary mb-2">
+                        @Html.DisplayNameFor(m => m.StudentNumber)
+                    </label>
+                    <input asp-for="StudentNumber" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-secondary focus:outline-none transition-colors" />
+                    <span asp-validation-for="StudentNumber" class="text-red-600 text-sm mt-1 block"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                        Güncelle
+                    </button>
+                    <a asp-action="ChangePassword" class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                        Şifre Değiştir
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Roles Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-primary mb-4">Roller</h2>
+            @if (Model.Roles != null && Model.Roles.Any())
+            {
+                <div class="space-y-2">
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-secondary/10 text-secondary">
+                            @role
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-gray-500 text-sm">Henüz rol atanmamış.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

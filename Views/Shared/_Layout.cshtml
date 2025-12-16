@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Topluluk_Yonetim.MVC</title>
+    <script type="importmap"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#312f29',
+                        secondary: '#e6be2b',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Topluluk_Yonetim.MVC.styles.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    @{
+        var isFullWidth = ViewData["FullWidth"] != null && (bool)ViewData["FullWidth"]!;
+        var isAuthenticated = User?.Identity?.IsAuthenticated == true;
+        var isAdmin = User?.IsInRole("Admin") == true;
+        var isPresident = User?.IsInRole("President") == true;
+    }
+    
+    @if (isFullWidth)
+    {
+        <!-- Full width pages (like Register, Login) - no sidebar -->
+        @RenderBody()
+    }
+    else if (!isAuthenticated)
+    {
+        <!-- Not authenticated - show login prompt -->
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-secondary">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+                <h2 class="text-2xl font-bold text-primary mb-4">Giriş Yapın</h2>
+                <p class="text-gray-600 mb-6">Sistemi kullanmak için giriş yapmanız gerekmektedir.</p>
+                <a asp-controller="Account" asp-action="Login" class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                    Giriş Yap
+                </a>
+                <p class="text-sm text-gray-500 mt-4">
+                    Hesabınız yok mu? <a asp-controller="Account" asp-action="Register" class="text-secondary hover:underline">Kayıt Ol</a>
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Pages with sidebar - authenticated users -->
+        <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-primary text-white flex flex-col h-screen fixed left-0 top-0 z-50 transition-transform duration-300 lg:translate-x-0 -translate-x-full">
+            <!-- Branding -->
+            <div class="p-6 border-b border-primary/20">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-lg bg-secondary/90 flex items-center justify-center text-primary font-extrabold text-xl">
+                        T
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold text-white leading-tight">Topluluk</h1>
+                        <p class="text-xs text-secondary mt-0.5 tracking-wide uppercase">Yönetim Sistemi</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hamburger Menu Button (Mobile) -->
+            <button id="sidebarToggle" class="lg:hidden absolute top-4 right-4 text-white hover:text-secondary transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            
+            <!-- Navigation Menu -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <ul class="space-y-1 px-4">
+                    <li>
+                        <a asp-controller="Announcement" asp-action="Index" class="flex items-center px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                            </svg>
+                            <span>Duyurular</span>
+                        </a>
+                    </li>
+                    <li class="border-t border-primary/20"></li>
+                    <li>
+                        <a asp-controller="ClubApplication" asp-action="Index" class="flex items-center px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Topluluk Başvurusu</span>
+                        </a>
+                    </li>
+                    <li class="border-t border-primary/20"></li>
+                    <li>
+                        <a asp-controller="Membership" asp-action="Apply" class="flex items-center px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            <span>Üyelik Başvurusu</span>
+                        </a>
+                    </li>
+                    <li class="border-t border-primary/20"></li>
+                    <li>
+                        <a asp-controller="Event" asp-action="Index" class="flex items-center px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Etkinlikler</span>
+                        </a>
+                    </li>
+                    <li class="border-t border-primary/20"></li>
+                    @if (isAdmin || isPresident)
+                    {
+                        <li class="space-y-2">
+                            <button type="button" class="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group" data-dropdown-toggle="approvalsMenu">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Onaylar</span>
+                                </span>
+                                <svg class="w-4 h-4 text-secondary transition-transform duration-200" data-dropdown-caret="approvalsMenu" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <ul id="approvalsMenu" class="space-y-1 px-4 hidden">
+                                @if (isAdmin)
+                                {
+                                    <li>
+                                        <a asp-controller="Approval" asp-action="Index" class="flex items-center px-4 py-2 text-sm text-white/80 hover:bg-primary/70 hover:text-secondary rounded-lg transition-all duration-200">
+                                            <span>Kulüp Onayları</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Approval" asp-action="Announcement" class="flex items-center px-4 py-2 text-sm text-white/80 hover:bg-primary/70 hover:text-secondary rounded-lg transition-all duration-200">
+                                            <span>Duyuru Onayları</span>
+                                        </a>
+                                    </li>
+                                }
+                                <li>
+                                    <a asp-controller="Approval" asp-action="Member" class="flex items-center px-4 py-2 text-sm text-white/80 hover:bg-primary/70 hover:text-secondary rounded-lg transition-all duration-200">
+                                        <span>Üye Onayları</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Approval" asp-action="Event" class="flex items-center px-4 py-2 text-sm text-white/80 hover:bg-primary/70 hover:text-secondary rounded-lg transition-all duration-200">
+                                        <span>Etkinlik Onayları</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    <li class="border-t border-primary/20"></li>
+                    <li>
+                        <a asp-controller="Account" asp-action="Profile" class="flex items-center px-4 py-3 text-white hover:bg-primary/80 hover:text-secondary rounded-lg transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>Hesabım</span>
+                        </a>
+                    </li>
+                    <li class="border-t border-primary/20"></li>
+                    <li>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                            <button type="submit" class="w-full flex items-center px-4 py-3 text-white hover:bg-red-600/20 hover:text-red-300 rounded-lg transition-all duration-200 group">
+                                <svg class="w-5 h-5 mr-3 text-secondary/70 group-hover:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                <span>Çıkış Yap</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
+            <!-- Mobile Header -->
+            <header class="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <button id="mobileSidebarToggle" class="text-primary hover:text-secondary transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <h2 class="text-lg font-semibold text-primary">Topluluk Yönetim</h2>
+                <div class="w-6"></div>
+            </header>
+            
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                @RenderBody()
+            </main>
+        </div>
+        </div>
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileSidebarToggle');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+            
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+            
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth < 1024) {
+                    if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+
+            dropdownButtons.forEach(button => {
+                const targetId = button.getAttribute('data-dropdown-toggle');
+                const menu = document.getElementById(targetId);
+                const caret = document.querySelector(`[data-dropdown-caret="${targetId}"]`);
+
+                if (!menu) {
+                    return;
+                }
+
+                button.addEventListener('click', function () {
+                    menu.classList.toggle('hidden');
+                    if (caret) {
+                        caret.classList.toggle('rotate-180');
+                    }
+                });
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

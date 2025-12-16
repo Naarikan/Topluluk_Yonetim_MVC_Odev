@@ -1,0 +1,136 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.ClubApplicationApprovalItemViewModel
+@{
+    ViewData["Title"] = "Kulüp Başvurusu Detayı";
+    string statusColor = Model.Status switch
+    {
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending => "bg-secondary/10 text-secondary",
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved => "bg-emerald-100 text-emerald-700",
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected => "bg-rose-100 text-rose-700",
+        _ => "bg-gray-100 text-gray-700"
+    };
+    string statusText = Model.Status switch
+    {
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending => "Beklemede",
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved => "Onaylandı",
+        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected => "Reddedildi",
+        _ => "Bilinmiyor"
+    };
+}
+
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <a asp-action="Index" class="inline-flex items-center text-sm text-secondary hover:text-secondary/80 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Kulüp Onaylarına Dön
+            </a>
+            <h1 class="text-3xl font-bold text-primary mt-2">@Model.ClubName</h1>
+            <p class="text-gray-500">Başvuru Tarihi: @Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+        </div>
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold @statusColor">
+            @statusText
+        </span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-gray-100 rounded-2xl p-4">
+            <p class="text-sm text-gray-500">Başvuru Sahibi</p>
+            <p class="text-lg font-semibold text-primary mt-2">@Model.ApplicantName</p>
+            <p class="text-sm text-gray-600">@Model.ApplicantEmail</p>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-2xl p-4">
+            <p class="text-sm text-gray-500">Tahmini Üye Sayısı</p>
+            <p class="text-3xl font-semibold text-primary mt-2">@Model.EstimatedMemberCount</p>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-2xl p-4">
+            <p class="text-sm text-gray-500">Danışman</p>
+            <p class="text-lg font-semibold text-primary mt-2">@(!string.IsNullOrWhiteSpace(Model.AdvisorName) ? Model.AdvisorName : "-")</p>
+            <p class="text-sm text-gray-600">@(!string.IsNullOrWhiteSpace(Model.AdvisorEmail) ? Model.AdvisorEmail : "-")</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-6">
+            <div>
+                <h2 class="text-lg font-semibold text-primary mb-2">Misyon</h2>
+                <p class="text-gray-700 leading-relaxed">@Model.Mission</p>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Vision))
+            {
+                <div>
+                    <h2 class="text-lg font-semibold text-primary mb-2">Vizyon</h2>
+                    <p class="text-gray-700 leading-relaxed">@Model.Vision</p>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.PlannedActivities))
+            {
+                <div>
+                    <h2 class="text-lg font-semibold text-primary mb-2">Planlanan Aktiviteler</h2>
+                    <p class="text-gray-700 leading-relaxed">@Model.PlannedActivities</p>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ResourceNeeds))
+            {
+                <div>
+                    <h2 class="text-lg font-semibold text-primary mb-2">Kaynak İhtiyaçları</h2>
+                    <p class="text-gray-700 leading-relaxed">@Model.ResourceNeeds</p>
+                </div>
+            }
+        </section>
+
+        <section class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-4">
+            <div>
+                <h2 class="text-lg font-semibold text-primary mb-1">Değerlendirme Bilgileri</h2>
+                <p class="text-sm text-gray-500">Koordinatör Notu</p>
+                <p class="text-gray-700 mt-1">@(!string.IsNullOrWhiteSpace(Model.CoordinatorNote) ? Model.CoordinatorNote : "-")</p>
+                <p class="text-sm text-gray-500 mt-4">Onaylayan / Reddeden</p>
+                <p class="text-gray-700">@(!string.IsNullOrWhiteSpace(Model.ReviewerName) ? Model.ReviewerName : "-")</p>
+                <p class="text-sm text-gray-500">Tarih</p>
+                <p class="text-gray-700">@((Model.ReviewedAt.HasValue) ? Model.ReviewedAt.Value.ToString("dd MMMM yyyy HH:mm") : "-")</p>
+            </div>
+
+            @if (Model.Status == Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending)
+            {
+                <form asp-action="Approve" method="post" class="space-y-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <label class="text-sm font-medium text-gray-700" for="note">Koordinatör Notu</label>
+                    <textarea id="note" name="note" rows="3" class="w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-secondary focus:border-secondary text-sm"></textarea>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
+                            Onayla
+                        </button>
+                        <button type="submit"
+                                formaction="@Url.Action("Reject", "Approval")"
+                                formmethod="post"
+                                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-200 transition-colors">
+                            Reddet
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
+                    Bu başvuru @statusText. Yeni bir işlem yapmak için durumun beklemede olması gerekir.
+                </div>
+            }
+        </section>
+    </div>
+</div>
+

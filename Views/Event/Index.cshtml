@@ -1,0 +1,284 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.EventIndexViewModel
+@{
+    ViewData["Title"] = "Etkinlikler";
+}
+
+<div class="space-y-6">
+    <!-- Header with Create & Export Buttons -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-3xl font-bold text-primary text-center sm:text-left">Etkinlikler</h1>
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:justify-end">
+            @if (User.IsInRole("Admin") || User.IsInRole("President"))
+            {
+                <a asp-action="Create" class="flex-1 sm:flex-none inline-flex justify-center bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Etkinlik Başvurusunda Bulun</span>
+                </a>
+            }
+            @if (User.IsInRole("Admin"))
+            {
+                <button type="button"
+                        class="flex-1 sm:flex-none inline-flex justify-center border border-gray-300 text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors gap-2"
+                        onclick="exportEventsToExcel()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v4H4zm0 6h16v10H4z"></path>
+                    </svg>
+                    <span>Excel'e Aktar</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div id="successMessage" class="bg-green-50 border-2 border-green-300 text-green-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Başarılı!</p>
+                <p class="text-sm">@TempData["SuccessMessage"]</p>
+            </div>
+            <button onclick="document.getElementById('successMessage').remove()" class="text-green-600 hover:text-green-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+
+    <!-- Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div id="errorMessage" class="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Hata!</p>
+                <p class="text-sm">@TempData["ErrorMessage"]</p>
+            </div>
+            <button onclick="document.getElementById('errorMessage').remove()" class="text-red-600 hover:text-red-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+
+    <!-- Filtreler -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Arama</label>
+                <input name="Search" value="@Model.Filter.Search" class="w-full rounded-lg border-gray-200" placeholder="Başlık / kulüp / açıklama" />
+            </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Durum</label>
+                    <select name="Status" class="w-full rounded-lg border-gray-200">
+                        <option value="">Tümü</option>
+                        <option value="@Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending" selected="@(Model.Filter.Status == Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending)">Beklemede</option>
+                        <option value="@Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved" selected="@(Model.Filter.Status == Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved)">Onaylandı</option>
+                        <option value="@Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected" selected="@(Model.Filter.Status == Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected)">Reddedildi</option>
+                    </select>
+                </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Sayfa Boyutu</label>
+                <select name="PageSize" class="w-full rounded-lg border-gray-200">
+                    @foreach (var size in new[] {10,20,50})
+                    {
+                        <option value="@size" selected="@(Model.Filter.PageSize == size)">@size</option>
+                    }
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <input type="hidden" name="PageNumber" value="1" />
+                <button type="submit" class="w-full bg-primary text-white rounded-lg px-4 py-2 font-semibold hover:bg-secondary transition">Uygula</button>
+            </div>
+            @if (User.IsInRole("Admin") || User.IsInRole("President"))
+            {
+                <div class="md:col-span-4 flex flex-wrap gap-2 items-center text-xs text-gray-500">
+                    <span class="px-2 py-1 rounded bg-gray-100">Admin/Başkan tüm durumları görebilir</span>
+                </div>
+            }
+        </form>
+    </div>
+
+    <!-- Calendar View -->
+    @if (Model?.Events != null && Model.Events.Items.Any())
+    {
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-x-auto">
+            <div class="min-w-[320px]">
+                <!-- Calendar Header -->
+                <div class="bg-gradient-to-r from-primary to-secondary text-white px-4 py-3 sm:px-6">
+                    <h2 class="text-xl font-bold">Etkinlik Takvimi</h2>
+                </div>
+
+            <!-- Events List -->
+            <div class="divide-y divide-gray-200" id="eventsExportContainer">
+                    @foreach (var evt in Model.Events.Items)
+                    {
+                    var statusColor = evt.Status switch
+                    {
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending => "bg-yellow-100 text-yellow-800",
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved => "bg-green-100 text-green-800",
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected => "bg-red-100 text-red-800",
+                        _ => "bg-gray-100 text-gray-800"
+                    };
+                    var statusText = evt.Status switch
+                    {
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Pending => "Beklemede",
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Approved => "Onaylandı",
+                        Topluluk_Yonetim.MVC.Models.Enums.ApprovalStatus.Rejected => "Reddedildi",
+                        _ => "Bilinmiyor"
+                    };
+                    var localEventDate = evt.EventDate.Kind == DateTimeKind.Utc 
+                        ? evt.EventDate.ToLocalTime() 
+                        : evt.EventDate;
+                    var isPast = localEventDate < DateTime.Now;
+                    var isToday = localEventDate.Date == DateTime.Now.Date;
+                    <div class="px-3 py-4 sm:px-6 sm:py-6 hover:bg-gray-50 transition-colors @(isPast ? "opacity-75" : "")">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <!-- Date Section -->
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <div class="flex flex-col items-center justify-center min-w-[64px] sm:min-w-[80px] px-3 py-2 sm:p-3 rounded-lg @(isToday ? "bg-secondary/10" : "bg-gray-100")">
+                                    <span class="text-xl sm:text-2xl font-bold text-primary">@localEventDate.Day</span>
+                                    <span class="text-xs sm:text-sm text-gray-600 uppercase">@localEventDate.ToString("MMM")</span>
+                                    <span class="text-[10px] sm:text-xs text-gray-500">@localEventDate.Year</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-base sm:text-xl font-bold text-primary mb-1 line-clamp-2">@evt.Title</h3>
+                                    <p class="text-sm text-gray-600 mb-2 truncate">@evt.ClubName</p>
+                                    @if (!string.IsNullOrEmpty(evt.Description))
+                                    {
+                                        <p class="text-xs sm:text-sm text-gray-500 line-clamp-2">@evt.Description</p>
+                                    }
+                                    <div class="flex flex-wrap items-center gap-3 mt-2 text-xs sm:text-sm text-gray-600">
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            @localEventDate.ToString("dd.MM.yyyy HH:mm")
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            @evt.EstimatedBudget.ToString("C")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div class="flex items-center justify-start md:justify-end gap-2 sm:gap-3">
+                                <span class="px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold @statusColor">
+                                    @statusText
+                                </span>
+                                @if (isPast)
+                                {
+                                    <span class="px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                                        Geçmiş
+                                    </span>
+                                }
+                                else if (isToday)
+                                {
+                                    <span class="px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-secondary/10 text-secondary">
+                                        Bugün
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-gray-600 text-lg">Henüz etkinlik bulunmamaktadır.</p>
+            <a asp-action="Create" class="inline-block mt-4 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                İlk Etkinliği Oluştur
+            </a>
+        </div>
+    }
+
+    @if (Model?.Events != null && (Model.Events.HasPrevious || Model.Events.HasNext))
+    {
+        <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-6 py-4">
+            <div class="text-sm text-gray-500">Sayfa @Model.Events.PageNumber / @Model.Events.TotalPages</div>
+            <div class="flex gap-2">
+                @if (Model.Events.HasPrevious)
+                {
+                    <a asp-action="Index" asp-route-PageNumber="@(Model.Events.PageNumber - 1)" asp-route-PageSize="@Model.Filter.PageSize" asp-route-Search="@Model.Filter.Search" asp-route-Status="@Model.Filter.Status" class="px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-100">Önceki</a>
+                }
+                @if (Model.Events.HasNext)
+                {
+                    <a asp-action="Index" asp-route-PageNumber="@(Model.Events.PageNumber + 1)" asp-route-PageSize="@Model.Filter.PageSize" asp-route-Search="@Model.Filter.Search" asp-route-Status="@Model.Filter.Status" class="px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-100">Sonraki</a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        function exportEventsToExcel() {
+            const container = document.getElementById('eventsExportContainer');
+            if (!container) {
+                alert('Dışa aktarılacak etkinlik bulunamadı.');
+                return;
+            }
+
+            const rows = [];
+
+            rows.push(['Tarih', 'Saat', 'Etkinlik', 'Topluluk', 'Açıklama', 'Durum', 'Bütçe']);
+
+            const items = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.Events.Items.Select(e => new {
+                    Title = e.Title,
+                    ClubName = e.ClubName,
+                    Description = e.Description,
+                    Status = e.Status.ToString(),
+                    EventDate = e.EventDate,
+                    EstimatedBudget = e.EstimatedBudget
+                })
+            ));
+
+            items.forEach(e => {
+                const date = new Date(e.EventDate);
+                const dateStr = date.toLocaleDateString('tr-TR');
+                const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+                rows.push([
+                    dateStr,
+                    timeStr,
+                    e.Title || '',
+                    e.ClubName || '',
+                    e.Description || '',
+                    e.Status || '',
+                    e.EstimatedBudget != null ? e.EstimatedBudget.toString() : ''
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Etkinlikler');
+
+            const now = new Date();
+            const pad = n => n.toString().padStart(2, '0');
+            const fileName = `etkinlikler-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+        }
+    </script>
+}

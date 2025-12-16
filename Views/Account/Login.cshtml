@@ -1,0 +1,122 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "_Layout";
+    ViewData["FullWidth"] = true;
+}
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-secondary relative overflow-hidden">
+    <!-- Animated background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-secondary animate-gradient bg-[length:400%_400%]"></div>
+    
+    <!-- Floating circles -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+        <div class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-radial-gradient from-secondary/10 to-transparent animate-float"></div>
+    </div>
+    
+    <!-- Form Card -->
+    <div class="relative z-10 w-full max-w-[500px] mx-4">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-up hover:shadow-3xl hover:-translate-y-1 transition-all duration-300">
+            <!-- Header -->
+            <div class="px-8 pt-8 pb-4 text-center">
+                <h3 class="text-2xl font-bold text-primary tracking-wide inline-block relative">
+                    <span class="text-secondary mx-2">•</span>
+                    Login Form
+                    <span class="text-secondary mx-2">•</span>
+                </h3>
+            </div>
+            
+            <!-- Body -->
+            <div class="px-10 pb-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 animate-slide-down">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="float-right text-green-600 hover:text-green-800" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                }
+
+                <form asp-action="Login" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4"></div>
+
+                    <!-- Email -->
+                    <div class="mb-5">
+                        <label asp-for="Email" class="block text-sm font-medium text-primary mb-2 tracking-wide">
+                            <span class="text-secondary">*</span>@Html.DisplayNameFor(m => m.Email)
+                        </label>
+                        <input asp-for="Email" class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-3 text-primary placeholder-gray-400 focus:border-secondary focus:outline-none transition-colors duration-300" placeholder="ornek@email.com" />
+                        <span asp-validation-for="Email" class="text-red-600 text-sm mt-1 block animate-fade-in"></span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-5">
+                        <label asp-for="Password" class="block text-sm font-medium text-primary mb-2 tracking-wide">
+                            <span class="text-secondary">*</span>@Html.DisplayNameFor(m => m.Password)
+                        </label>
+                        <div class="relative">
+                            <input asp-for="Password" id="passwordInput" type="password" class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-3 pr-10 text-primary placeholder-gray-400 focus:border-secondary focus:outline-none transition-colors duration-300" placeholder="••••••••" />
+                            <button type="button" onclick="togglePassword()" class="absolute right-0 top-3 text-gray-400 hover:text-secondary transition-colors">
+                                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0L3 3m3.59 3.59L12 12m-5.41-5.41L12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-red-600 text-sm mt-1 block animate-fade-in"></span>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="mb-6 flex items-center">
+                        <input asp-for="RememberMe" class="w-4 h-4 text-secondary border-gray-300 rounded focus:ring-secondary" />
+                        <label asp-for="RememberMe" class="ml-2 text-sm text-gray-700">
+                            @Html.DisplayNameFor(m => m.RememberMe)
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group">
+                        <span class="relative z-10">Giriş Yap</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </button>
+
+                    <!-- Register Link -->
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600 text-sm">
+                            Hesabınız yok mu?
+                            <a asp-action="Register" class="text-secondary font-semibold hover:text-primary transition-colors">
+                                Kayıt Ol
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeOffIcon = document.getElementById('eyeOffIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.add('hidden');
+            eyeOffIcon.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('hidden');
+            eyeOffIcon.classList.add('hidden');
+        }
+    }
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

@@ -1,0 +1,122 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.AnnouncementDetailsViewModel
+@{
+    ViewData["Title"] = "Duyuru Detayı";
+    var localCreatedAt = Model.CreatedAt.Kind == DateTimeKind.Utc 
+        ? Model.CreatedAt.ToLocalTime() 
+        : Model.CreatedAt;
+}
+
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <a asp-action="Index" class="inline-flex items-center text-sm text-secondary hover:text-secondary/80 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Duyurulara Dön
+            </a>
+            <h1 class="text-3xl font-bold text-primary mt-2">@Model.Title</h1>
+            <p class="text-gray-500">Yayın Tarihi: @localCreatedAt.ToString("dd MMMM yyyy HH:mm")</p>
+        </div>
+        <div class="flex items-center gap-3">
+            @if (Model.IsPinned)
+            {
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-secondary/10 text-secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    </svg>
+                    Sabitlenmiş
+                </span>
+            }
+            @if (Model.IsRead)
+            {
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Okundu
+                </span>
+            }
+            else
+            {
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-secondary text-white animate-pulse">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                    </svg>
+                    Yeni - Okunmadı
+                </span>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div class="space-y-6">
+            <!-- Content -->
+            <div>
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">@Model.Content</p>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="border-t border-gray-200 pt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-semibold text-primary">Hedef Kitle:</span>
+                        <span class="text-gray-600 ml-2">@Model.AudienceText</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ClubName))
+                    {
+                        <div>
+                            <span class="font-semibold text-primary">Topluluk:</span>
+                            <span class="text-gray-600 ml-2">@Model.ClubName</span>
+                        </div>
+                    }
+                    <div>
+                        <span class="font-semibold text-primary">Yayın Tarihi:</span>
+                        <span class="text-gray-600 ml-2">@localCreatedAt.ToString("dd MMMM yyyy HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="border-t border-gray-200 pt-6 flex gap-4">
+                <a asp-action="Index" class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                    Geri Dön
+                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("President"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-secondary transition-colors">
+                        Düzenle
+                    </a>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <form asp-action="Delete" method="post" class="inline" onsubmit="return confirm('Bu duyuruyu silmek istediğinizden emin misiniz?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="px-6 py-3 bg-red-100 text-red-600 rounded-lg font-semibold hover:bg-red-200 transition-colors">
+                            Sil
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Eski IsCoordinatorAsync helper'ı kaldırıldı; yetki kontrolleri artık [Authorize] ve User.IsInRole ile yapılıyor. *@
+

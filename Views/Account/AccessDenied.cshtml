@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Erişim Reddedildi";
+    Layout = "_Layout";
+    ViewData["FullWidth"] = true;
+}
+
+<div class="min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-primary/90 to-secondary/60 py-16">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-10 text-center">
+        <div class="flex flex-col items-center gap-6">
+            <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+                <svg class="w-10 h-10 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+
+            <div>
+                <p class="text-sm font-semibold text-secondary tracking-[0.35em] uppercase">Erişim Reddedildi</p>
+                <h1 class="text-3xl font-bold text-gray-900 mt-2">Bu Sayfaya Erişim Yetkiniz Yok</h1>
+                <p class="text-gray-600 mt-3">Bu işlemi gerçekleştirmek için gerekli yetkilere sahip değilsiniz.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                <a href="/" class="inline-flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg shadow hover:bg-primary/90 transition">
+                    Ana Sayfaya Dön
+                </a>
+                <a asp-action="Profile" class="inline-flex items-center justify-center px-6 py-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-100">
+                    Hesabım
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,202 @@
+@model Topluluk_Yonetim.MVC.Models.ViewModels.AnnouncementIndexViewModel
+@{
+    ViewData["Title"] = "Duyurular";
+}
+
+<div class="space-y-6">
+    <!-- Header with Create Button -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-center sm:text-left">
+            <h1 class="text-3xl font-bold text-primary">Duyurular</h1>
+            <p class="text-gray-600 mt-1">Tüm duyuruları buradan görüntüleyebilirsiniz.</p>
+        </div>
+        @if (User.IsInRole("Admin") || User.IsInRole("President"))
+        {
+            <a asp-action="Create" class="w-full sm:w-auto inline-flex justify-center bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Yeni Duyuru</span>
+            </a>
+        }
+    </div>
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div id="successMessage" class="bg-green-50 border-2 border-green-300 text-green-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Başarılı!</p>
+                <p class="text-sm">@TempData["SuccessMessage"]</p>
+            </div>
+            <button onclick="document.getElementById('successMessage').remove()" class="text-green-600 hover:text-green-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+
+    <!-- Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div id="errorMessage" class="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-lg flex items-center gap-3 shadow-lg animate-fade-in">
+            <svg class="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold text-lg">Hata!</p>
+                <p class="text-sm">@TempData["ErrorMessage"]</p>
+            </div>
+            <button onclick="document.getElementById('errorMessage').remove()" class="text-red-600 hover:text-red-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+
+    <!-- Filtreler -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Arama</label>
+                <input name="Search" value="@Model.Filter.Search" class="w-full rounded-lg border-gray-200" placeholder="Başlık / içerik / kulüp" />
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Hedef Kitle</label>
+                <select name="Audience" class="w-full rounded-lg border-gray-200">
+                    <option value="">Tümü</option>
+                    @foreach (var audience in Enum.GetValues(typeof(Topluluk_Yonetim.MVC.Models.Enums.AnnouncementAudience)))
+                    {
+                        <option value="@audience" selected="@(Model.Filter.Audience?.ToString() == audience.ToString())">@audience</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Sabit / Hepsi</label>
+                <select name="IsPinned" class="w-full rounded-lg border-gray-200">
+                    <option value="">Hepsi</option>
+                    <option value="true" selected="@(Model.Filter.IsPinned == true)">Sabit</option>
+                    <option value="false" selected="@(Model.Filter.IsPinned == false)">Normal</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Sayfa Boyutu</label>
+                    <select name="PageSize" class="w-full rounded-lg border-gray-200">
+                        @foreach (var size in new[] {10,20,50})
+                        {
+                            <option value="@size" selected="@(Model.Filter.PageSize == size)">@size</option>
+                        }
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-primary text-white rounded-lg px-4 py-2 font-semibold hover:bg-secondary transition">Uygula</button>
+                </div>
+            </div>
+            <input type="hidden" name="PageNumber" value="1" />
+        </form>
+    </div>
+
+    <!-- Announcements List -->
+    @if (Model.Announcements != null && Model.Announcements.Items.Any())
+    {
+        <div class="space-y-4">
+            @foreach (var announcement in Model.Announcements.Items)
+            {
+                var localCreatedAt = announcement.CreatedAt.Kind == DateTimeKind.Utc 
+                    ? announcement.CreatedAt.ToLocalTime() 
+                    : announcement.CreatedAt;
+                
+                <article class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all @(announcement.IsPinned ? "border-secondary border-2" : announcement.IsRead ? "border-gray-200 opacity-90" : "border-secondary/50 border-2")">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                @if (announcement.IsPinned)
+                                {
+                                    <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                    </svg>
+                                }
+                                <h3 class="text-xl font-bold text-primary">@announcement.Title</h3>
+                                @if (!announcement.IsRead)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-secondary text-white animate-pulse">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                                        </svg>
+                                        Yeni
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Okundu
+                                    </span>
+                                }
+                            </div>
+                            <p class="text-gray-600 mb-3">@announcement.Content</p>
+                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    @localCreatedAt.ToString("dd MMMM yyyy HH:mm")
+                                </span>
+                                @if (!string.IsNullOrEmpty(announcement.ClubName))
+                                {
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                        @announcement.ClubName
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <a asp-action="Details" asp-route-id="@announcement.Id" class="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:text-secondary transition-colors whitespace-nowrap">
+                            Detayı Gör
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+            </svg>
+            <p class="text-gray-600 text-lg">Henüz duyuru bulunmamaktadır.</p>
+        </div>
+    }
+
+    @if (Model.Announcements != null && (Model.Announcements.HasPrevious || Model.Announcements.HasNext))
+    {
+        <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-6 py-4">
+            <div class="text-sm text-gray-500">Sayfa @Model.Announcements.PageNumber / @Model.Announcements.TotalPages</div>
+            <div class="flex gap-2">
+                @if (Model.Announcements.HasPrevious)
+                {
+                    <a asp-action="Index" asp-route-PageNumber="@(Model.Announcements.PageNumber - 1)" asp-route-PageSize="@Model.Filter.PageSize" asp-route-Search="@Model.Filter.Search" asp-route-Audience="@Model.Filter.Audience" asp-route-IsPinned="@Model.Filter.IsPinned" class="px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-100">Önceki</a>
+                }
+                @if (Model.Announcements.HasNext)
+                {
+                    <a asp-action="Index" asp-route-PageNumber="@(Model.Announcements.PageNumber + 1)" asp-route-PageSize="@Model.Filter.PageSize" asp-route-Search="@Model.Filter.Search" asp-route-Audience="@Model.Filter.Audience" asp-route-IsPinned="@Model.Filter.IsPinned" class="px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-100">Sonraki</a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
